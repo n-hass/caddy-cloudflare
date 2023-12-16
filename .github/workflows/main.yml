@@ -25,6 +25,8 @@ jobs:
         id: prepare
         run: |
           LATEST_RELEASE=$(curl -s https://api.github.com/repos/caddyserver/caddy/releases/latest)
+          echo "release text:"
+          echo "$LATEST_RELEASE"
           VERSION=$(echo $LATEST_RELEASE | grep .tag_name | awk -F\" '{print substr($4, 2)}')
           echo "Extracted version: $VERSION"
           echo ::set-output name=docker_platform::${DOCKER_TARGET_PLATFORM}
