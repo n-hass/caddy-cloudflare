@@ -27,12 +27,14 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Prepare
+      - name: Prepare tags
         if: success()
         id: prepare
         run: |
+          LATEST_RELEASE=$(curl -s https://api.github.com/repos/caddyserver/caddy/releases/latest)
+          VERSION=$(echo $LATEST_RELEASE | grep .tag_name | awk -F\" '{print substr($4, 2)}')
           echo ::set-output name=docker_platform::${DOCKER_TARGET_PLATFORM}
-          echo "::set-output name=tag::$(git describe --tags --abbrev=0)"
+          echo "::set-output name=tag::$(echo $VERSION)"
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
@@ -48,5 +50,5 @@ jobs:
           platforms: ${{ env.DOCKER_TARGET_PLATFORM }}
           push: true
           tags: |
-            ghcr.io/${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_CONTAINER_NAME }}:${{ steps.prepare.outputs.tag }}
-            ghcr.io/${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_CONTAINER_NAME }}:latest
+            ghcr.io/${{ github.actor }}/${{ env.IMAGE_NAME }}:${{ steps.prepare.outputs.tag }}
+            ghcr.io/${{ github.actor }}/${{ env.IMAGE_NAME }}:latest
