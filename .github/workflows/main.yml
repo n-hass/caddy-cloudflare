@@ -25,11 +25,10 @@ jobs:
         id: prepare
         run: |
           LATEST_RELEASE=$(curl -s https://api.github.com/repos/caddyserver/caddy/releases/latest | grep \"tag_name\")
-          echo $LATEST_RELEASE
           VERSION=$(echo $LATEST_RELEASE | awk -F\" '{print substr($4, 2)}')
           echo "Extracted version: $VERSION"
-          echo ::set-output name=docker_platform::${DOCKER_TARGET_PLATFORM}
-          echo "::set-output name=tag::$VERSION"
+          echo "docker_platform=${DOCKER_TARGET_PLATFORM}" >> $GITHUB_OUTPUT
+          echo "tag=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
