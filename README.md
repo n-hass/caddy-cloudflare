@@ -1,6 +1,5 @@
 [![Latest Release][version-image]][version-url]
 [![caddy on DockerHub][dockerhub-image]][dockerhub-url]
-[![Build latest Docker image][gh-actions-image]][gh-actions-url]
 
 # caddy-cloudflare
 
