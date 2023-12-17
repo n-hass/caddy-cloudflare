@@ -44,5 +44,5 @@ jobs:
           platforms: ${{ env.DOCKER_TARGET_PLATFORM }}
           push: true
           tags: |
-            ghcr.io/n-hass/${{ env.IMAGE_NAME }}:${{ steps.prepare.outputs.tag }}
-            ghcr.io/n-hass/${{ env.IMAGE_NAME }}:latest
+            ghcr.io/${{ env.IMAGE_NAME }}:${{ steps.prepare.outputs.tag }}
+            ghcr.io/${{ env.IMAGE_NAME }}:latest
