@@ -1,8 +1,8 @@
 [![Latest Release][version-image]][version-url]
 [![caddy on DockerHub][dockerhub-image]][dockerhub-url]
-[![Docker Build][gh-actions-image]][gh-actions-url]
+[![Build latest Docker image][gh-actions-image]][gh-actions-url]
 
-# caddy-cloudflaredns
+# caddy-cloudflare
 
 Please see the official [Caddy Docker Image](https://hub.docker.com/_/caddy) for deployment instructions.
 
