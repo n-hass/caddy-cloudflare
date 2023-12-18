@@ -1,6 +1,9 @@
 name: Build latest Docker image
 
 on:
+  schedule:
+    # Runs at 11:00 UTC every Monday
+    - cron: '0 11 * * 1'
   push:
     tags:
       - "*"
