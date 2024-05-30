@@ -21,7 +21,7 @@ jobs:
       - name: Get latest published version tag from GHCR
         id: latest_version
         run: |
-          LATEST_TAG=$(curl -s -L https://github.com/caddyserver/caddy/releases/latest | grep '<title>Release' | sed -n 's/.*Release v\([0-9]*\.[0-9]*\.[0-9]*\) .*/\1/p')
+          LATEST_TAG=$(curl -s -L https://github.com/n-hass/caddy-cloudflare/releases/latest | grep '<title>Release' | sed -n 's/.*Release v\([0-9]*\.[0-9]*\.[0-9]*\) .*/\1/p')
           echo "Latest published version: $LATEST_TAG"
           echo "latest_version=$LATEST_TAG" >> $GITHUB_OUTPUT
 
