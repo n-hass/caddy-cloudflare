@@ -64,3 +64,15 @@ jobs:
           tags: |
             ghcr.io/${{ env.IMAGE_NAME }}:${{ steps.prepare.outputs.tag }}
             ghcr.io/${{ env.IMAGE_NAME }}:latest
+
+      - name: Create GitHub Release
+        if: steps.latest_version.outputs.latest_version != steps.prepare.outputs.tag
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.prepare.outputs.tag }}
+          name: Release v${{ steps.prepare.outputs.tag }}
+          body: |
+            Automated build of Caddy v${{ steps.prepare.outputs.tag }}.
+          draft: false
+          prerelease: false
+          token: ${{ secrets.GITHUB_TOKEN }}
