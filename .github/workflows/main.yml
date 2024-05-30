@@ -21,7 +21,7 @@ jobs:
       - name: Get latest published version tag from GHCR
         id: latest_version
         run: |
-          LATEST_TAG=$(curl -s -L https://github.com/users/n-hass/packages/container/n-hass%2Fcaddy-cloudflare/158804865\?tag=latest | grep -o 'href="/users[^"]*tag=[^"]*' | sed 's/.*tag=//' | grep -v 'latest' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z]+)?$')
+          LATEST_TAG=$(curl -s -L https://github.com/users/n-hass/packages/container/n-hass%2Fcaddy-cloudflare/158804865\?tag=latest | grep -o 'href="/users[^"]*tag=[^"]*' | sed 's/.*tag=//' | grep -v 'latest' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z]+)?$' || true)
           echo "Latest published version: $LATEST_TAG"
           echo "latest_version=$LATEST_TAG" >> $GITHUB_OUTPUT
 
