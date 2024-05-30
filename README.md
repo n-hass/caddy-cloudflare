@@ -1,5 +1,4 @@
 [![Latest Release][version-image]][version-url]
-[![caddy on DockerHub][dockerhub-image]][dockerhub-url]
 
 # caddy-cloudflare
 
