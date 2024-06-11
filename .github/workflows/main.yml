@@ -45,6 +45,7 @@ jobs:
           else
             echo "Build is not necessary"
             echo "build_needed=false" >> $GITHUB_OUTPUT
+          fi
 
   build:
     runs-on: ubuntu-latest
