@@ -18,37 +18,37 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Get latest published version tag from GHCR
-        id: latest_version
+      - name: Get latest published version of this repo
+        id: this_repo
         run: |
-          LATEST_TAG=$(curl -s -L https://github.com/users/n-hass/packages/container/n-hass%2Fcaddy-cloudflare/158804865\?tag=latest | grep -o 'href="/users[^"]*tag=[^"]*' | sed 's/.*tag=//' | grep -v 'latest' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z]+)?$' || true)
-          echo "Latest published version: $LATEST_TAG"
-          echo "latest_version=$LATEST_TAG" >> $GITHUB_OUTPUT
+          VERSION=$(curl -s https://api.github.com/repos/caddyserver/caddy/releases/latest | grep \"tag_name\" | awk -F\" '{print substr($4, 2)}')
+          echo "Latest published version: $VERSION"
+          echo "latest_version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Prepare tags
-        id: prepare
+      - name: Get latest published version upstream
+        id: upstream
         run: |
           LATEST_RELEASE=$(curl -s https://api.github.com/repos/caddyserver/caddy/releases/latest | grep \"tag_name\")
           VERSION=$(echo $LATEST_RELEASE | awk -F\" '{print substr($4, 2)}')
           echo "Extracted version: $VERSION"
           echo "docker_platform=${DOCKER_TARGET_PLATFORM}" >> $GITHUB_OUTPUT
-          echo "tag=$VERSION" >> $GITHUB_OUTPUT
+          echo "latest_version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Check if build is necessary
-        if: steps.latest_version.outputs.latest_version != steps.prepare.outputs.tag
+        if: steps.this_repo.outputs.latest_version != steps.upstream.outputs.latest_version
         run: echo "Version differs from the latest published. Proceeding with build."
         
       - name: Checkout
         uses: actions/checkout@v4
-        if: steps.latest_version.outputs.latest_version != steps.prepare.outputs.tag
+        if: steps.this_repo.outputs.latest_version != steps.upstream.outputs.latest_version
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-        if: steps.latest_version.outputs.latest_version != steps.prepare.outputs.tag
+        if: steps.this_repo.outputs.latest_version != steps.upstream.outputs.latest_version
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
-        if: steps.latest_version.outputs.latest_version != steps.prepare.outputs.tag
+        if: steps.this_repo.outputs.latest_version != steps.upstream.outputs.latest_version
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -56,7 +56,7 @@ jobs:
 
       - name: Build container and Push
         uses: docker/build-push-action@v4
-        if: steps.latest_version.outputs.latest_version != steps.prepare.outputs.tag
+        if: steps.this_repo.outputs.latest_version != steps.upstream.outputs.latest_version
         with:
           context: .
           platforms: ${{ env.DOCKER_TARGET_PLATFORM }}
@@ -66,13 +66,13 @@ jobs:
             ghcr.io/${{ env.IMAGE_NAME }}:latest
 
       - name: Create GitHub Release
-        if: steps.latest_version.outputs.latest_version != steps.prepare.outputs.tag
+        if: steps.this_repo.outputs.latest_version != steps.upstream.outputs.latest_version
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.prepare.outputs.tag }}
-          name: Release v${{ steps.prepare.outputs.tag }}
+          tag_name: ${{ steps.upstream.outputs.latest_version }}
+          name: v${{ steps.upstream.outputs.latest_version }}
           body: |
-            Automated build of Caddy v${{ steps.prepare.outputs.tag }}.
+            Automated build of Caddy v${{ steps.upstream.outputs.latest_version }}.
           draft: false
           prerelease: false
           token: ${{ secrets.GITHUB_TOKEN }}
