@@ -15,8 +15,11 @@ env:
   DOCKER_TARGET_PLATFORM: linux/amd64
 
 jobs:
-  build:
+  check-version:
     runs-on: ubuntu-latest
+    outputs:
+      build_needed: ${{ steps.check.outputs.build_needed }}
+      latest_version: ${{ steps.upstream.outputs.latest_version }}
     steps:
       - name: Get latest published version of this repo
         id: this_repo
@@ -31,24 +34,31 @@ jobs:
           LATEST_RELEASE=$(curl -s https://api.github.com/repos/caddyserver/caddy/releases/latest | grep \"tag_name\")
           VERSION=$(echo $LATEST_RELEASE | awk -F\" '{print substr($4, 2)}')
           echo "Extracted version: $VERSION"
-          echo "docker_platform=${DOCKER_TARGET_PLATFORM}" >> $GITHUB_OUTPUT
           echo "latest_version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Check if build is necessary
-        if: steps.this_repo.outputs.latest_version != steps.upstream.outputs.latest_version
-        run: echo "Version differs from the latest published. Proceeding with build."
-        
+        id: check
+        run: |
+          if [ "${{ steps.this_repo.outputs.latest_version }}" != "${{ steps.upstream.outputs.latest_version }}" ]; then
+            echo "Build is necessary"
+            echo "build_needed=true" >> $GITHUB_OUTPUT
+          else
+            echo "Build is not necessary"
+            echo "build_needed=false" >> $GITHUB_OUTPUT
+
+  build:
+    runs-on: ubuntu-latest
+    needs: check-version
+    if: needs.check-version.outputs.build_needed == 'true'
+    steps:
       - name: Checkout
         uses: actions/checkout@v4
-        if: steps.this_repo.outputs.latest_version != steps.upstream.outputs.latest_version
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-        if: steps.this_repo.outputs.latest_version != steps.upstream.outputs.latest_version
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
-        if: steps.this_repo.outputs.latest_version != steps.upstream.outputs.latest_version
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -56,23 +66,21 @@ jobs:
 
       - name: Build container and Push
         uses: docker/build-push-action@v4
-        if: steps.this_repo.outputs.latest_version != steps.upstream.outputs.latest_version
         with:
           context: .
           platforms: ${{ env.DOCKER_TARGET_PLATFORM }}
           push: true
           tags: |
-            ghcr.io/${{ env.IMAGE_NAME }}:${{ steps.prepare.outputs.tag }}
+            ghcr.io/${{ env.IMAGE_NAME }}:${{ needs.check-version.outputs.latest_version }}
             ghcr.io/${{ env.IMAGE_NAME }}:latest
 
       - name: Create GitHub Release
-        if: steps.this_repo.outputs.latest_version != steps.upstream.outputs.latest_version
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.upstream.outputs.latest_version }}
-          name: v${{ steps.upstream.outputs.latest_version }}
+          tag_name: ${{ needs.check-version.outputs.latest_version }}
+          name: v${{ needs.check-version.outputs.latest_version }}
           body: |
-            Automated build of Caddy v${{ steps.upstream.outputs.latest_version }}.
+            Automated build of Caddy v${{ needs.check-version.outputs.latest_version }}.
           draft: false
           prerelease: false
           token: ${{ secrets.GITHUB_TOKEN }}
