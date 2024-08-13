@@ -6,7 +6,7 @@ Please see the official [Caddy Docker Image](https://hub.docker.com/_/caddy) for
 
 Builds are available at the following Docker repositories:
 
-* GitHub Container Registry: [ghcr.io/slothcroissant/caddy-cloudflaredns](https://ghcr.io/n-hass/caddy-cloudflare)
+* GitHub Container Registry: [ghcr.io/n-hass/caddy-cloudflare](https://ghcr.io/n-hass/caddy-cloudflare)
 
 Few things to note: 
 
@@ -22,7 +22,7 @@ Few things to note:
         -e CLOUDFLARE_EMAIL=me@example.com \
         -e CLOUDFLARE_API_TOKEN=12345 \
         -e ACME_AGREE=true \
-        slothcroissant/caddy-cloudflaredns:latest
+        ghcr.io/n-hass/caddy-cloudflare:latest
       ```
       
       You can obtain your [Cloudflare API token](https://support.cloudflare.com/hc/en-us/articles/200167836-Managing-API-Tokens-and-Keys) via the Cloudflare Portal. To create a API token with minimal scope, the following steps are needed:
