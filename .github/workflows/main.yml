@@ -24,16 +24,15 @@ jobs:
       - name: Get latest published version of this repo
         id: this_repo
         run: |
-          VERSION=$(curl -s https://api.github.com/repos/caddyserver/caddy/releases/latest | grep \"tag_name\" | awk -F\" '{print substr($4, 2)}')
-          echo "Latest published version: $VERSION"
+          VERSION=$(curl -s https://api.github.com/repos/n-hass/caddy-cloudflare/releases/latest | grep \"tag_name\" | awk -F\" '{print substr($4, 0)}')
+          echo "Got version: $VERSION"
           echo "latest_version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Get latest published version upstream
         id: upstream
         run: |
-          LATEST_RELEASE=$(curl -s https://api.github.com/repos/caddyserver/caddy/releases/latest | grep \"tag_name\")
-          VERSION=$(echo $LATEST_RELEASE | awk -F\" '{print substr($4, 2)}')
-          echo "Extracted version: $VERSION"
+          VERSION=$(curl -s https://api.github.com/repos/caddyserver/caddy/releases/latest | grep \"tag_name\" | awk -F\" '{print substr($4, 2)}')
+          echo "Got version: $VERSION"
           echo "latest_version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Check if build is necessary
